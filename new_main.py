@@ -9,10 +9,10 @@ import os
 # 1. ПОЛУЧЕНИЕ ЧАСТОТЫ И МАССИВА ДАННЫХ ИЗ WAV ФАЙЛА
 frequency, data = wav.read('signal.WAV')
 length = len(data)
-print("Frequency:  ", frequency, "   Length:   ", length)
+print("\nFrequency:  ", frequency, "   Length:   ", length, "\n")
 
 
-# # 2. СОХРАНЕНИЕ В TXT ФАЙЛ - дополнительно
+# # 2. СОХРАНЕНИЕ В TXT ФАЙЛ - дополнительно (много времени)
 # # ТЕКУЩАЯ ДИРЕКТОРИЯ С ФАЙЛОМ ПРОГРАММЫ
 # direction = os.getcwd()
 #
@@ -57,29 +57,35 @@ number_of_samples = round(len(data_am) * float(new_frequency) / frequency)
 # ВЫЗОВ ФУНКЦИИ RESAMPLE ДЛЯ МАССИВА ОГИБАЮЩЕЙ ВСЕГО ГРАФИКА
 data_resampled = signal.resample(data_am, number_of_samples)
 
+
 # 6. ПОЛУЧЕНИЕ ИЗОБРАЖЕНИЯ:
 
 # РАЗБИЕНИЕ НА УЧАСТКИ ДЛИНОЙ В ПОЛОВИНУ ЧАСТОТЫ
 frame_width = int(0.5 * new_frequency)
-# РАЗМЕРЫ ИЗОБРАЖЕНИЯ - ДЛИНА И ШИРИНА
+# РАЗМЕРЫ ИЗОБРАЖЕНИЯ - ШИРИНА И ВЫСОТА
 w, h = frame_width, len(data_resampled) // frame_width
-# СОЗДАНИЕ RGB ЗОБРАЖЕНИЯ
+# СОЗДАНИЕ RGB ИЗОБРАЖЕНИЯ
 image = Image.new('RGB', (w, h))
 
 # ЗАПИСЬ В ПИКСЕЛИ
 px, py = 0, 0
 for p in range(len(data_resampled)):
     lum = int(data_resampled[p] // 32 - 32)
+    # проверка попадания в диапазон 0...255
     if lum < 0: lum = 0
     if lum > 255: lum = 255
     image.putpixel((px, py), (lum, lum, lum))
+    # продвижение дальше по ширине картинки
     px += 1
+    # переход на следующую строку, если вышли за пределы ширины
     if px >= w:
         px = 0
         py += 1
+        # выход из цикла, если превышена выстота
         if py >= h:
             break
 # РАСТЯГИВАЕМ ИЗОБРАЖЕНИЕ ПО ДЛИНЕ В 2 РАЗА
 image = image.resize((2 * w, h))
 # СОХРАНЯЕМ
 image.save('Sputnic.png')
+print("Successfully saved image 'Sputnic.png'")
