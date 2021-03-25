@@ -11,6 +11,8 @@ frequency, data = wav.read('signal.WAV')
 length = len(data)
 print("\nFrequency:  ", frequency, "   Length:   ", length, "\n")
 
+if(frequency%2 == 1):
+    frequency+=1
 
 # # 2. СОХРАНЕНИЕ В TXT ФАЙЛ - дополнительно (много времени)
 # # ТЕКУЩАЯ ДИРЕКТОРИЯ С ФАЙЛОМ ПРОГРАММЫ
@@ -69,8 +71,9 @@ image = Image.new('RGB', (w, h))
 
 # ЗАПИСЬ В ПИКСЕЛИ
 px, py = 0, 0
+max = np.max(data_resampled)
 for p in range(len(data_resampled)):
-    lum = int(data_resampled[p] // 32 - 32)
+    lum = int(data_resampled[p]/max*255)
     # проверка попадания в диапазон 0...255
     if lum < 0: lum = 0
     if lum > 255: lum = 255
