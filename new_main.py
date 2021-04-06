@@ -11,8 +11,9 @@ frequency, data = wav.read('signal.WAV')
 length = len(data)
 print("\nFrequency:  ", frequency, "   Length:   ", length, "\n")
 
-if(frequency%2 == 1):
-    frequency+=1
+if frequency % 2 == 1:
+    frequency += 1
+
 
 # # 2. СОХРАНЕНИЕ В TXT ФАЙЛ - дополнительно (много времени)
 # # ТЕКУЩАЯ ДИРЕКТОРИЯ С ФАЙЛОМ ПРОГРАММЫ
@@ -36,29 +37,29 @@ def hilbert(data):
 # ОГИБАЮЩАЯ ВСЕГО СИГНАЛА
 data_am = hilbert(data)
 
-
 # 4. ДЕМОНСТРАЦИЯ
 # ВЫДЕЛЕНИЕ ОТДЕЛЬНОГО УЧАСТКА ДЛЯ ДЕМОНСТРАЦИИ
-data_1 = data[250 * frequency:251 * frequency]
+data_1 = data[250 * frequency:252 * frequency]
 # ОГИБАЮЩАЯ УЧАСТКА ДЛЯ ДЕМОНСТРАЦИИ
 data_am_1 = hilbert(data_1)
 
 # ВЫВОД ГРАФИКА НА ЭКРАН
 plt.plot(data_1)
-plt.plot(data_am_1)
+plt.plot(data_am_1, "-o")
 plt.xlabel("Номер")
 plt.ylabel("Амплитуда")
 plt.title("Сигнал")
 plt.show()
 
+# # 5. RESAMPLE
+# # НОВАЯ ЧАСТОТА ДЛЯ ИЗОБРАЖЕНИЯ
+# new_frequency = 2080
+# number_of_samples = round(len(data_am) * float(new_frequency) / frequency)
+# # ВЫЗОВ ФУНКЦИИ RESAMPLE ДЛЯ МАССИВА ОГИБАЮЩЕЙ ВСЕГО ГРАФИКА
+# data_resampled = signal.resample(data_am, number_of_samples)
 
-# 5. RESAMPLE
-# НОВАЯ ЧАСТОТА ДЛЯ ИЗОБРАЖЕНИЯ
-new_frequency = 2080
-number_of_samples = round(len(data_am) * float(new_frequency) / frequency)
-# ВЫЗОВ ФУНКЦИИ RESAMPLE ДЛЯ МАССИВА ОГИБАЮЩЕЙ ВСЕГО ГРАФИКА
-data_resampled = signal.resample(data_am, number_of_samples)
-
+new_frequency = frequency
+data_resampled = data_am
 
 # 6. ПОЛУЧЕНИЕ ИЗОБРАЖЕНИЯ:
 
@@ -72,8 +73,9 @@ image = Image.new('RGB', (w, h))
 # ЗАПИСЬ В ПИКСЕЛИ
 px, py = 0, 0
 max = np.max(data_resampled)
+min = np.min(data_resampled)
 for p in range(len(data_resampled)):
-    lum = int(data_resampled[p]/max*255)
+    lum = int((data_resampled[p]- min)/ (max-min) * 255)
     # проверка попадания в диапазон 0...255
     if lum < 0: lum = 0
     if lum > 255: lum = 255
@@ -88,7 +90,7 @@ for p in range(len(data_resampled)):
         if py >= h:
             break
 # РАСТЯГИВАЕМ ИЗОБРАЖЕНИЕ ПО ДЛИНЕ В 2 РАЗА
-image = image.resize((2 * w, h))
+image = image.resize((w, 3*h))
 # СОХРАНЯЕМ
 image.save('Sputnic.png')
 print("Successfully saved image 'Sputnic.png'")
