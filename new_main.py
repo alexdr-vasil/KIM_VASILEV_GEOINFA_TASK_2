@@ -51,7 +51,7 @@ plt.ylabel("Амплитуда")
 plt.title("Сигнал")
 plt.show()
 
-# # 5. RESAMPLE
+# # 4.5 RESAMPLE
 # # НОВАЯ ЧАСТОТА ДЛЯ ИЗОБРАЖЕНИЯ
 # new_frequency = 2080
 # number_of_samples = round(len(data_am) * float(new_frequency) / frequency)
@@ -61,7 +61,7 @@ plt.show()
 new_frequency = frequency
 data_resampled = data_am
 
-# 6. ПОЛУЧЕНИЕ ИЗОБРАЖЕНИЯ:
+# 5. ПОЛУЧЕНИЕ ИЗОБРАЖЕНИЯ(НЕ ПРЯМОЕ):
 
 # РАЗБИЕНИЕ НА УЧАСТКИ ДЛИНОЙ В ПОЛОВИНУ ЧАСТОТЫ
 frame_width = int(0.5 * new_frequency)
@@ -91,34 +91,36 @@ for p in range(len(data_resampled)):
         # выход из цикла, если превышена выстота
         if py >= h:
             break
-# РАСТЯГИВАЕМ ИЗОБРАЖЕНИЕ ПО ДЛИНЕ В 2 РАЗА
+# РАСТЯГИВАЕМ ИЗОБРАЖЕНИЕ ПО ДЛИНЕ В 3 РАЗА
 image = image.resize((w, 3 * h))
 # СОХРАНЯЕМ
 image.save('Sputnic.png')
 print("Successfully saved image 'Sputnic.png'")
 
+# 6. ПОЛУЧЕНИЕ ИЗОБРАЖЕНИЯ(ПРЯМОЕ):
+
 # СЧИТАЕМ ВРУЧНУЮ С ГРАФИКА РАЗМЕР СИНХРОИМПУЛЬСА И РАССТОЯНИЕ МЕЖДУ МАКСИМУМАМИ
 impulse_length = 84
 delta = 14
 
-
-def find_impulse(data, first_it):
-    id = first_it
-    for i in range(first_it, len(data) - 91, 1):
-        counter = 0
+# НАХОЖДЕНИЕ НАЧАЛЬНОГО ЭЛЕМЕНТА СИНХРОИМПУЛЬСА
+def find_impulse(data, k):
+    n = k
+    for i in range(k, len(data) - 91, 1):
+        c = 0
         for j in range(0, impulse_length, delta):
             if data[i + j] > 0.3 * max or abs(data[i + j + 7] - data[i + j]) > max * 0.7 or abs(data[i + j + 7] - data[i + j]) < 0.3 * max:
-                counter += 1
-        if counter <= 2:
-            id = i
+                c += 1
+        if c <= 2:
+            n = i
             break
-    return id
+    return n
 
 
-# пересохранение правильного массива
+# СОЗДАЕМ МАССИВ ДЛЯ ПРЯМОГО ИЗОБРАЖЕНИЯ
 new_data = np.zeros((len(data_resampled), 1))
 elem = int(0)
-it = find_impulse(data_resampled, 0)
+it = find_impulse(data_am, 0)
 while it <= len(data_resampled) - int(new_frequency * 0.5):
     for j in range(it, it + int(new_frequency * 0.5), 1):
         new_data[elem] = data_resampled[j]
@@ -127,23 +129,35 @@ while it <= len(data_resampled) - int(new_frequency * 0.5):
     it = find_impulse(data_resampled, k)
 
 
-
+# РАЗМЕРЫ ПРЯМОГО ИЗОБРАЖЕНИЯ - ШИРИНА И ВЫСОТА
 w, h = frame_width, len(new_data) // frame_width
+# СОЗДАНИЕ RGB ИЗОБРАЖЕНИЯ
 image = Image.new('RGB', (w, h))
 
+# ЗАПИСЬ В ПИКСЕЛИ
 px, py = 0, 0
-for p in range(new_data.shape[0]):
-    light = int((new_data[p]-min)/(max-min) * 255)
-    if light < 0: light = 0
-    image.putpixel((px, py), (light, light, light))
+max = np.max(new_data)
+min = np.min(new_data)
+for p in range(len(new_data)):
+    lum = int((new_data[p] - min) / (max - min) * 255)
+    # проверка попадания в диапазон 0...255
+    if lum < 0: lum = 0
+    if lum > 255: lum = 255
+    image.putpixel((px, py), (lum, lum, lum))
+    # продвижение дальше по ширине картинки
     px += 1
+    # переход на следующую строку, если вышли за пределы ширины
     if px >= w:
         if (py % 50) == 0:
             print(f"Line saved {py} of {h}")
         px = 0
         py += 1
+        # выход из цикла, если превышена выстота
         if py >= h:
             break
+
+#РАСТЯГИВАЕМ ИЗОБРАЖЕНИЕ В 4 РАЗА
 image = image.resize((w, 4*h))
+#СОХРАНЯЕМ
 image.save('Straight_picture.png')
 print("Successfully saved image 'Straight_picture.png'")
