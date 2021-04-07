@@ -51,7 +51,7 @@ plt.ylabel("Амплитуда")
 plt.title("Сигнал")
 plt.show()
 
-# # 4.5 RESAMPLE
+# # 5. RESAMPLE
 # # НОВАЯ ЧАСТОТА ДЛЯ ИЗОБРАЖЕНИЯ
 # new_frequency = 2080
 # number_of_samples = round(len(data_am) * float(new_frequency) / frequency)
@@ -61,7 +61,7 @@ plt.show()
 new_frequency = frequency
 data_resampled = data_am
 
-# 5. ПОЛУЧЕНИЕ ИЗОБРАЖЕНИЯ(НЕ ПРЯМОЕ):
+# 6. ПОЛУЧЕНИЕ ИЗОБРАЖЕНИЯ(НЕ ПРЯМОЕ):
 
 # РАЗБИЕНИЕ НА УЧАСТКИ ДЛИНОЙ В ПОЛОВИНУ ЧАСТОТЫ
 frame_width = int(0.5 * new_frequency)
@@ -97,7 +97,7 @@ image = image.resize((w, 3 * h))
 image.save('Sputnic.png')
 print("Successfully saved image 'Sputnic.png'")
 
-# 6. ПОЛУЧЕНИЕ ИЗОБРАЖЕНИЯ(ПРЯМОЕ):
+# 7. ПОЛУЧЕНИЕ ИЗОБРАЖЕНИЯ(ПРЯМОЕ):
 
 # СЧИТАЕМ ВРУЧНУЮ С ГРАФИКА РАЗМЕР СИНХРОИМПУЛЬСА И РАССТОЯНИЕ МЕЖДУ МАКСИМУМАМИ
 impulse_length = 84
@@ -133,7 +133,6 @@ while it <= len(data_resampled) - int(new_frequency * 0.5):
 w, h = frame_width, len(new_data) // frame_width
 # СОЗДАНИЕ RGB ИЗОБРАЖЕНИЯ
 image = Image.new('RGB', (w, h))
-
 # ЗАПИСЬ В ПИКСЕЛИ
 px, py = 0, 0
 max = np.max(new_data)
@@ -155,7 +154,6 @@ for p in range(len(new_data)):
         # выход из цикла, если превышена выстота
         if py >= h:
             break
-
 #РАСТЯГИВАЕМ ИЗОБРАЖЕНИЕ В 4 РАЗА
 image = image.resize((w, 4*h))
 #СОХРАНЯЕМ
